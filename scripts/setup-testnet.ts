@@ -15,7 +15,10 @@ const USDC_ISSUER = process.env.USDC_TESTNET_ISSUER ?? "GBBD47IF6LWK7P7MDEVSCWR7
 const USDC = new Asset("USDC", USDC_ISSUER);
 const ENV_LOCAL = ".env.local";
 
-const ROLES = ["DEPLOYER", "VERIFIER", "REWARD_POOL", "X402_RECIPIENT", "AGENT"] as const;
+// X402_FACILITATOR: kendi x402 facilitator'ımızın imzalayıcısı — işlemi gönderir ve
+// fee-bump ile ücreti öder, böylece ödeyen ajanın XLM'i olmasına gerek kalmaz.
+// Yalnız XLM tutar; ödeme varlığında trustline'a ihtiyacı yok.
+const ROLES = ["DEPLOYER", "VERIFIER", "REWARD_POOL", "X402_RECIPIENT", "AGENT", "X402_FACILITATOR"] as const;
 const NEEDS_USDC: readonly (typeof ROLES)[number][] = ["REWARD_POOL", "X402_RECIPIENT", "AGENT"];
 
 const horizon = new Horizon.Server(HORIZON);

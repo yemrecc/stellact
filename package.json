@@ -24,7 +24,10 @@
     "dna:smoke": "tsx scripts/dna-smoke.ts",
     "web:env": "tsx scripts/sync-web-env.ts",
     "web:dev": "pnpm --filter @stellact/web dev",
-    "web:e2e": "tsx scripts/web-e2e.ts"
+    "web:e2e": "tsx scripts/web-e2e.ts",
+    "api:dev": "pnpm --filter @stellact/demo-api start",
+    "agent:x402": "tsx scripts/agent-x402.ts",
+    "fund:tusd": "tsx scripts/fund-tusd.ts"
   },
   "dependencies": {
     "@attestprotocol/stellar-sdk": "^2.0.2",
@@ -33,6 +36,8 @@
     "@stellact/dna": "workspace:*",
     "@stellact/stellar": "workspace:*",
     "@stellar/stellar-sdk": "^16.3.0",
+    "@x402/fetch": "^2.26.0",
+    "@x402/stellar": "^2.26.0",
     "attest-protocol": "workspace:*",
     "dotenv": "^16.4.5",
     "e8004-identity": "workspace:*",
