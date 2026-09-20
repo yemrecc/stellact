@@ -5,7 +5,7 @@ import { CONFIG, short } from "@/lib/config";
 
 const NAV = [
   { href: "/tasks", label: "Tasks" },
-  { href: "/index", label: "Index" },
+  { href: "/usage-index", label: "Index" },
   { href: "/dna", label: "My DNA" },
 ] as const;
 

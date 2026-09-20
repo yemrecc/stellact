@@ -36,6 +36,7 @@ const cases: { name: string; path: string; expect: string[]; forbid?: string[]; 
   // Ajan geni satıcının settlement kaydından gelir — demo API (:3001) ayakta olmalı (pnpm api:dev).
   { name: "Agent DNA → x402 gene", path: `/dna/${env.NEXT_PUBLIC_DEMO_AGENT}`, expect: ["settlements · diversity", "query diversity"], forbid: ["Horizon unreachable"] },
   { name: "Agent task → policy table", path: "/tasks/x402-diversity", expect: ["Query diversity", "query_diversity ≥", "agent"], forbid: ["Horizon unreachable"] },
+  { name: "Usage index", path: "/usage-index", expect: ["Verified Usage Index", "distinct real users", "Vault-demo"], forbid: ["Horizon unreachable"] },
   { name: "Tasks list", path: "/tasks", expect: ["Deposit at least 50 TUSD", "Pay for 3 different queries", "Class A"], forbid: ["Horizon unreachable"] },
   { name: "Login (kit loads, idle)", path: `/`, expect: ["Create wallet with passkey", "The chain says what your wallet actually did."], forbid: ["Looking for a saved wallet"], check: styled },
 ];

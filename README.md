@@ -73,7 +73,7 @@ pnpm agent:x402           # agent vs script, real payments, real verdict
 | `/tasks` · `/tasks/[id]` | Task list and detail, with the policy table |
 | `/tasks/[id]/result/[subject]` | **The decision** — verdict, reasons, evidence, lineage |
 | `/dna/[address]` | The DNA card: 7 genes, every fact linked to the chain |
-| `/index` | Verified Usage Index — distinct real users, not TVL |
+| `/usage-index` | Verified Usage Index — distinct real users, not TVL |
 
 ---
 

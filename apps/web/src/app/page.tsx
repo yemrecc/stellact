@@ -148,7 +148,7 @@ export default function Home() {
 
         <div className="note hair-top">
           You can look around without a wallet: <Link href="/tasks" style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>Tasks</Link> ·{" "}
-          <Link href="/index" style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>Index</Link>
+          <Link href="/usage-index" style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>Index</Link>
         </div>
       </section>
     </div>
