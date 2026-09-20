@@ -1,11 +1,16 @@
-import type { Sibling, VaultPosition, WalletFacts } from "./types";
+import type { AgentFacts, Sibling, VaultPosition, WalletFacts } from "./types";
 
 const HORIZON: Record<"testnet" | "mainnet", string> = { testnet: "https://horizon-testnet.stellar.org", mainnet: "https://horizon.stellar.org" };
 
 async function j(u: string) { const r = await fetch(u); if (!r.ok) throw new Error(`Horizon ${r.status} ${u}`); return r.json(); }
 
-/** Horizon'dan bir hesabın DNA olgularını okur. Vault pozisyonu dışarıdan verilir (RPC). */
-export async function readWalletFacts(id: string, network: "testnet" | "mainnet", vault: VaultPosition = { balance_tusd: 0, deposited_at: null }): Promise<WalletFacts> {
+/** Horizon'dan bir hesabın DNA olgularını okur. Vault (RPC) ve ajan (satıcı kaydı) olguları dışarıdan verilir. */
+export async function readWalletFacts(
+  id: string,
+  network: "testnet" | "mainnet",
+  vault: VaultPosition = { balance_tusd: 0, deposited_at: null },
+  agent: AgentFacts = { identity_8004: null, settlements: [] },
+): Promise<WalletFacts> {
   const H = HORIZON[network];
   const [acc, ops, pays, txs] = await Promise.all([
     j(`${H}/accounts/${id}`),
@@ -28,6 +33,7 @@ export async function readWalletFacts(id: string, network: "testnet" | "mainnet"
     self_payments: self,
     trustlines: acc.balances.filter((b: any) => b.asset_type !== "native").map((b: any) => ({ code: b.asset_code, issuer: b.asset_issuer, balance: b.balance, sponsor: b.sponsor ?? null })),
     vault,
+    agent,
     observed_at: new Date().toISOString(),
   };
 }

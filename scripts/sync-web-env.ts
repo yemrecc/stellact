@@ -17,6 +17,8 @@ const pub: Record<string, string> = {
   NEXT_PUBLIC_DEMO_SCRIPT: root.SYBIL_SCRIPT,
   NEXT_PUBLIC_DEMO_SPONSOR: root.SYBIL_SPONSOR,
   NEXT_PUBLIC_DEMO_SMART_ACCOUNT: root.SA_CONTRACT,
+  NEXT_PUBLIC_DEMO_AGENT: root.AGENT_PUBLIC,
+  NEXT_PUBLIC_DEMO_API_URL: root.DEMO_API_URL ?? "http://localhost:3001",   // x402 satıcısı
 };
 const missing = Object.entries(pub).filter(([, v]) => !v).map(([k]) => k);
 if (missing.length) { console.error("Eksik:", missing.join(", ")); process.exit(1); }

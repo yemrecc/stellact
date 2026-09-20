@@ -2,8 +2,12 @@
  * x402 alıcı — ajan ve script, aynı görev, farklı davranış.
  *
  * Görev: "demo API'ye 3 farklı sorguyla öde."
- *   AJAN   → 3 ayrı uç nokta/parametre  → query_diversity 1.00 → geçer
- *   SCRIPT → aynı sorgu 3 kez           → query_diversity 0.33 → reddedilir
+ *   AJAN   → her koşuda farklı sorular  → query_diversity yüksek → geçer
+ *   SCRIPT → hep aynı sorgu             → query_diversity düşük  → reddedilir
+ *
+ * Kararı burada hesaplamıyoruz: satıcının settlement kaydını okuyup ürünün kendi
+ * karar motoruna (`@stellact/dna`, POLICIES.agent) veriyoruz. Script'in gördüğü
+ * gerekçe, kullanıcının web'de gördüğü gerekçeyle aynı koddan çıkar.
  *
  * İkisi de gerçekten ödüyor (TUSD, testnet, facilitator ücreti sponsorluyor).
  * Fark davranışta, ödemede değil — ürünün tezi tam olarak bu.
@@ -16,6 +20,7 @@ import { readFileSync } from "node:fs";
 import { wrapFetchWithPaymentFromConfig } from "@x402/fetch";
 import { createEd25519Signer } from "@x402/stellar";
 import { ExactStellarScheme } from "@x402/stellar/exact/client";
+import { computeGenome, decide, POLICIES, readAgentFacts, readSiblings, readWalletFacts } from "@stellact/dna";
 
 const local: Record<string, string> = Object.fromEntries(
   readFileSync(".env.local", "utf8").split("\n").filter(l => l.includes("=") && !l.startsWith("#"))
@@ -65,11 +70,24 @@ async function run(label: string, secret: string, pub: string, paths: string[]) 
   return results;
 }
 
-async function settlementsFor(pub: string) {
-  const r = await fetch(`${API}/settlements?payer=${pub}`);
-  const { settlements } = await r.json() as { settlements: { endpoint: string; params_hash: string; tx_hash: string }[] };
-  const distinct = new Set(settlements.map(s => s.endpoint + ":" + s.params_hash)).size;
-  return { total: settlements.length, distinct, diversity: settlements.length ? distinct / settlements.length : 0, settlements };
+/** Ürünün karar motorunun bu cüzdan için ne dediği — gerekçeleriyle. */
+async function verdict(label: string, pub: string) {
+  const agent = await readAgentFacts(API, pub);
+  const facts = await readWalletFacts(pub, "testnet", { balance_tusd: 0, deposited_at: null }, agent);
+  const g = computeGenome(facts, await readSiblings(facts.sponsor, "testnet"));
+  const d = decide(g, POLICIES.agent, pub);
+  const div = g.agent.query_diversity;
+  console.log(`\n${label}  ${pub.slice(0, 8)}…  settlement=${g.agent.x402_settlements}  diversity=${div === null ? "—" : div.toFixed(2)} (son ${g.agent.query_diversity_window})  → ${d.pass ? "GEÇER" : "REDDEDİLİR"}`);
+  for (const r of d.passed) console.log(`   ✓ ${r.text}   [${r.code}]`);
+  for (const r of d.reasons) console.log(`   ✗ ${r.text}   [${r.code}]${r.evidence ? `  → ${r.evidence.label} ${r.evidence.ref.slice(0, 12)}…` : ""}`);
+}
+
+/** Ajanın her koşuda sorduğu sorular farklı — çeşitlilik taklit değil, davranışın kendisi. */
+const PAIRS = ["USDTRY", "EURTRY", "GBPTRY", "JPYTRY", "CHFTRY", "AUDTRY", "CADTRY", "SEKTRY", "NOKTRY", "DKKTRY"];
+function agentQueries() {
+  const pool = [...PAIRS].sort(() => Math.random() - 0.5);
+  const days = 3 + Math.floor(Math.random() * 25);
+  return [`/rates/${pool[0]}`, "/signals", `/history/${pool[1]}?days=${days}`];
 }
 
 async function main() {
@@ -77,15 +95,13 @@ async function main() {
   const scriptSecret = local.SYBIL_SCRIPT_SECRET, scriptPub = local.SYBIL_SCRIPT;
   if (!agentSecret || !scriptSecret) throw new Error("AGENT_SECRET / SYBIL_SCRIPT_SECRET yok — `pnpm setup:testnet` ve `pnpm setup:sybil`");
 
-  // Ajan: üç ayrı sorgu
-  await run("AJAN  (3 farklı sorgu)", agentSecret, agentPub, ["/rates/USDTRY", "/signals", "/history/EURTRY?days=5"]);
-  // Script: aynı sorgu üç kez
+  // Ajan: üç ayrı sorgu, her koşuda farklı
+  await run("AJAN  (3 farklı sorgu)", agentSecret, agentPub, agentQueries());
+  // Script: aynı sorgu üç kez, her koşuda aynı
   await run("SCRIPT (aynı sorgu ×3)", scriptSecret, scriptPub, ["/rates/USDTRY", "/rates/USDTRY", "/rates/USDTRY"]);
 
-  console.log("\n--- query_diversity (doğrulayıcının göreceği) ---");
-  for (const [label, pub] of [["AJAN  ", agentPub], ["SCRIPT", scriptPub]] as const) {
-    const s = await settlementsFor(pub);
-    console.log(`${label}  settlement=${s.total}  ayrı=${s.distinct}  diversity=${s.diversity.toFixed(2)}  → ${s.diversity >= 0.5 ? "geçer" : "REDDEDİLİR (query_diversity < 0.5)"}`);
-  }
+  console.log(`\n--- karar · POLICIES.agent ${POLICIES.agent.version} ---`);
+  await verdict("AJAN  ", agentPub);
+  await verdict("SCRIPT", scriptPub);
 }
 main().catch(e => { console.error("HATA:", e?.message ?? e); if (e?.stack) console.error(e.stack.split("\n").slice(1, 5).join("\n")); process.exit(1); });

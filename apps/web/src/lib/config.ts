@@ -20,6 +20,8 @@ const RAW = {
   demoScript: process.env.NEXT_PUBLIC_DEMO_SCRIPT,
   demoSponsor: process.env.NEXT_PUBLIC_DEMO_SPONSOR,
   demoSmartAccount: process.env.NEXT_PUBLIC_DEMO_SMART_ACCOUNT,
+  demoAgent: process.env.NEXT_PUBLIC_DEMO_AGENT,
+  demoApiUrl: process.env.NEXT_PUBLIC_DEMO_API_URL,
 } as const;
 
 /** Zorunlu değer eksikse render anında değil, kullanım anında patlasın — sayfa yine de açılır. */
@@ -45,6 +47,9 @@ export const CONFIG = {
     script: RAW.demoScript ?? "",
     sponsor: RAW.demoSponsor ?? "",
     smartAccount: RAW.demoSmartAccount ?? "",
+    agent: RAW.demoAgent ?? "",
+    /** x402 satıcısı — ajan olgularının (settlement kaydı) okunduğu yer. */
+    apiUrl: RAW.demoApiUrl ?? "http://localhost:3001",
   },
   // Smart Account Kit — Protocol 27 testnet deploy'ları (docs/deployments-protocol-27-2026-07-09.md)
   sak: {

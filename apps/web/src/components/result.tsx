@@ -7,6 +7,7 @@ import { computeGenome, decide, readSiblings, readWalletFacts, type Decision, ty
 import type { Task } from "@/lib/tasks";
 import { CONFIG, fmtUtc } from "@/lib/config";
 import { readVault } from "@/lib/vault";
+import { NO_AGENT, agentFacts, needsAgentFacts } from "@/lib/agent";
 import { DecisionStrip, GenomeCard, PolicyPanel } from "@/components/dna";
 
 type Loaded = { genome: Genome; siblings: Sibling[]; decision: Decision; stamp: string };
@@ -16,14 +17,15 @@ type Phase = { status: "loading"; step: string } | ({ status: "ready" } & Loaded
 async function loadResult(subject: string, policy: Policy, onStep: (s: string) => void): Promise<Loaded> {
   onStep("Vault okunuyor… (Soroban RPC)");
   const vault = await readVault(subject);
+  const agent = needsAgentFacts(policy) ? await agentFacts(subject) : NO_AGENT;
   let facts: WalletFacts;
   if (subject.startsWith("C")) {
     // Smart account: Horizon'da klasik hesap kaydı yok — köken/yaş genleri şimdilik boş, pozisyon RPC'den.
     facts = { id: subject, network: CONFIG.network, sponsor: null, created_at: null, funder: null, starting_balance: null, last_modified_time: null,
-      tx_count: 0, distinct_counterparties: 0, self_payments: 0, trustlines: [], vault: { balance_tusd: vault.balance_tusd, deposited_at: vault.deposited_at }, observed_at: new Date().toISOString() };
+      tx_count: 0, distinct_counterparties: 0, self_payments: 0, trustlines: [], vault: { balance_tusd: vault.balance_tusd, deposited_at: vault.deposited_at }, agent, observed_at: new Date().toISOString() };
   } else {
     onStep("Horizon okunuyor… köken, trustline, karşı taraflar");
-    facts = await readWalletFacts(subject, CONFIG.network, { balance_tusd: vault.balance_tusd, deposited_at: vault.deposited_at });
+    facts = await readWalletFacts(subject, CONFIG.network, { balance_tusd: vault.balance_tusd, deposited_at: vault.deposited_at }, agent);
   }
   onStep(facts.sponsor ? "Sponsor kümesi okunuyor…" : "Karar veriliyor…");
   const siblings = await readSiblings(facts.sponsor, CONFIG.network);

@@ -13,6 +13,8 @@ export function PolicyPanel({ policy }: { policy: Policy }) {
     ["Ayrı karşı taraf", policy.distinct_counterparties_lt ? `≥ ${policy.distinct_counterparties_lt}` : "şart yok"],
     ["Kalıcılık", policy.position_held_days ? `${policy.position_held_days} gün` : "şart yok"],
   ];
+  if (policy.min_x402_settlements) rows.push(["Ücretli çağrı (x402)", `≥ ${policy.min_x402_settlements} mutabık`]);
+  if (policy.query_diversity_lt) rows.push(["Sorgu çeşitliliği", `≥ ${policy.query_diversity_lt}`]);
   return (
     <div className="stack" style={{ gap: 6 }}>
       <div className="eyebrow">Görev politikası · proje tanımlı</div>
@@ -66,7 +68,19 @@ export function GenomeCard({ address, genome, siblings, stamp, role, lineageOpen
           <Fact v={String(g.graph.sponsor_siblings)} k="aynı sponsorun açtığı kardeş hesap" flag={clusterFlag} />
         </Gene>
         <Gene name="Tasdik" key_="attestations"><Fact v={String(g.attestations.poa)} k="POA tasdiki" /></Gene>
-        <Gene name="Ajan" key_="agent"><Fact v={g.agent.identity_8004 ?? "—"} k={g.agent.identity_8004 ? "8004 kimliği" : "8004 kimliği yok · insan cüzdanı"} /></Gene>
+        <Gene name="Ajan" key_="agent">
+          <Fact v={g.agent.identity_8004 ?? "—"} k={g.agent.identity_8004 ? "8004 kimliği" : "8004 kimliği yok · insan cüzdanı"} />
+          {g.agent.x402_settlements > 0 && (
+            <>
+              <Fact v={String(g.agent.x402_settlements)} k="ücretli çağrı · zincirde mutabık (x402)" />
+              <Fact
+                v={g.agent.query_diversity === null ? "—" : g.agent.query_diversity.toFixed(2)}
+                k={`son ${g.agent.query_diversity_window} çağrıda sorgu çeşitliliği`}
+                flag={g.agent.query_diversity !== null && g.agent.query_diversity < 0.5}
+              />
+            </>
+          )}
+        </Gene>
         <Gene name="İlkler" key_="firsts">
           <div className="firsts">{g.firsts.length ? g.firsts.map(f => <Pill key={f} kind="acc">{f}</Pill>) : <Pill>henüz yok</Pill>}</div>
         </Gene>

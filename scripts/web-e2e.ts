@@ -29,6 +29,8 @@ const cases: { name: string; path: string; expect: string[]; forbid?: string[]; 
   { name: "Script → Reddedildi", path: `/tasks/vault-50/result/${env.NEXT_PUBLIC_DEMO_SCRIPT}`, expect: ["Reddedildi", "sponsor_cluster_size=41 > 10", "Soy ağacı · 41 hesap"], forbid: ["Zincire ulaşılamadı"] },
   { name: "Kullanıcı → Geçti", path: `/tasks/vault-50/result/${env.NEXT_PUBLIC_DEMO_GENUINE}`, expect: ["Geçti", "tasdik yazılır", "sponsor yok"], forbid: ["Reddedildi", "Zincire ulaşılamadı"] },
   { name: "Smart account DNA", path: `/dna/${env.NEXT_PUBLIC_DEMO_SMART_ACCOUNT}`, expect: ["Smart account", "100 TUSD", "first:vault.deposit"], forbid: ["Zincire ulaşılamadı"] },
+  // Ajan geni satıcının settlement kaydından gelir — demo API (:3001) ayakta olmalı (pnpm api:dev).
+  { name: "Ajan DNA → x402 geni", path: `/dna/${env.NEXT_PUBLIC_DEMO_AGENT}`, expect: ["ücretli çağrı · zincirde mutabık (x402)", "sorgu çeşitliliği"], forbid: ["Zincire ulaşılamadı"] },
   { name: "Giriş (kit yüklenir, idle)", path: `/`, expect: ["Passkey ile cüzdan oluştur"], forbid: ["Kayıtlı cüzdan aranıyor"], check: sdsStyled },
 ];
 

@@ -12,7 +12,7 @@
     "setup:testnet": "tsx scripts/setup-testnet.ts",
     "contracts:build": "cd contracts && cargo build --target wasm32v1-none --release",
     "contracts:test": "cd contracts && cargo test",
-    "typecheck": "tsc -p tsconfig.base.json --noEmit",
+    "typecheck": "tsc -p tsconfig.base.json --noEmit && tsc -p apps/demo-api/tsconfig.json",
     "setup:attest": "tsx scripts/setup-attest.ts",
     "attest:delegated": "tsx scripts/attest-delegated.ts",
     "attest:read": "tsx scripts/read-attestation.ts",
