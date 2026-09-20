@@ -1,0 +1,4 @@
+# Xcode.app'in lisansı kabul edilmemiş; Command Line Tools zaten kurulu ve lisanslı.
+# DEVELOPER_DIR ile toolchain'i CLT'ye yönlendiriyoruz — sudo gerekmez.
+[env]
+DEVELOPER_DIR = "/Library/Developer/CommandLineTools"

@@ -1,0 +1,45 @@
+{
+  "name": "stellar-dna",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Stellar DNA — Proof of Real Use: on-chain verification, attestations and DNA for wallets and agents on Stellar",
+  "packageManager": "pnpm@12.4.2",
+  "engines": {
+    "node": ">=22"
+  },
+  "type": "module",
+  "scripts": {
+    "setup:testnet": "tsx scripts/setup-testnet.ts",
+    "contracts:build": "cd contracts && cargo build --target wasm32v1-none --release",
+    "contracts:test": "cd contracts && cargo test",
+    "typecheck": "tsc -p tsconfig.base.json --noEmit",
+    "setup:attest": "tsx scripts/setup-attest.ts",
+    "attest:delegated": "tsx scripts/attest-delegated.ts",
+    "attest:read": "tsx scripts/read-attestation.ts",
+    "attest:bootstrap": "tsx scripts/attest-bootstrap.ts",
+    "setup:asset": "tsx scripts/setup-test-asset.ts",
+    "vault:smoke": "tsx scripts/vault-smoke.ts",
+    "setup:sybil": "tsx scripts/setup-sybil-cluster.ts"
+  },
+  "dependencies": {
+    "@attestprotocol/stellar-sdk": "^2.0.2",
+    "@noble/curves": "^2.4.0",
+    "@noble/hashes": "^2.4.0",
+    "@stellar/stellar-sdk": "^16.3.0",
+    "attest-protocol": "workspace:*",
+    "dotenv": "^16.4.5",
+    "e8004-identity": "workspace:*",
+    "e8004-reputation": "workspace:*",
+    "vault": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}

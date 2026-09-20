@@ -1,0 +1,43 @@
+/** Doğrulama tarihi: 19-20 Eylül 2026. Kaynaklar: Stellar_DNA_Build_Plan.md §16 */
+
+export const USDC = {
+  testnet: {
+    issuer: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5", // classic G — trustline için
+    sac:    "CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA", // C — kontrat çağrısı için
+  },
+  mainnet: {
+    issuer: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+    sac:    "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+  },
+} as const;
+
+export const ATTEST = {
+  testnet: "CA2QET2KOUGAECEVYQEQT3SLDDZRUMAQHI7MMDTFVJY62WTHUTERAUCD",
+  mainnet: "CAMZUXDEMJ4BDEA2FCTXPRQW3VPEJLFOV5IB3NKKJB2G4CV7ANHNSF2N",
+} as const;
+
+export const E8004_TESTNET = {
+  identity:   "CDE3K4COIAGWNNJQQLL26SYI3KBJF5FUDHXG5FA6GYDJCG7T5V7FIWZH",
+  reputation: "CBZEAGIEI3HXMDRLF44KLQJQQOH6LCYWWSGJVSYQYQO2HQ6DDGZ7HT55",
+  validation: "CC5USZRO26MOIAVNYTTJDS63C2OBBLREOAOET4CPF2EZWO3YFKLMO3SL",
+} as const;
+
+export const SMART_ACCOUNT_KIT_TESTNET = {
+  accountWasmHash:      "1b5f4534a76322da2ad7c745f6900857a6802b0ca79850c35a03561df997785a",
+  webauthnVerifier:     "CC7EKIHQP3TN4CARQDND6CEOY2UXLWWC2X5GHTD5NLAT7BG5GPZIOM3F",
+  ed25519Verifier:      "CAAVTMCBXEIBPR64EAASKFXERVPYFZA2JYP5A3BG6PESWEFUJX5IHKN4",
+  thresholdPolicy:      "CB3FATQKCIRIQOCYRUPCQ2KREQ7T4RPKS7EAEOZWPEPUKWEDRVROBCEG",
+  spendingLimitPolicy:  "CABXBYJNZ7IUW4G3D6BND5YCAQF3ASSDMDAOKQQ63UYFSO7WUU2TIP5G",
+  relayerProxy:         "https://smart-account-relayer-proxy.sdf-ecosystem.workers.dev",
+} as const;
+
+export const BLEND_MAINNET = {
+  poolFixedV2: "CAJJZSGMMM3PD7N33TAPHGBUGTB43OC73HVIK2L2G6BNGGGYOSSYBXBD",
+  backstop:    "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3",
+} as const;
+
+export const OZ = {
+  channelsTestnet:    "https://channels.openzeppelin.com/testnet",
+  x402FacilitatorTestnet: "https://channels.openzeppelin.com/x402/testnet",
+  x402FacilitatorMainnet: "https://channels.openzeppelin.com/x402",
+} as const;

@@ -1,0 +1,16 @@
+[package]
+name = "vault"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["lib", "cdylib"]
+doctest = false
+
+[dependencies]
+# SDK majörü ağın protokolünü izler: testnet/mainnet P28 → 28. crates.io'dan teyit; yoksa "27".
+soroban-sdk = "28"
+
+[dev-dependencies]
+soroban-sdk = { version = "28", features = ["testutils"] }
