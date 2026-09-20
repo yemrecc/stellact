@@ -1,8 +1,8 @@
 {
-  "name": "stellar-dna",
+  "name": "stellact",
   "private": true,
   "version": "0.0.1",
-  "description": "Stellar DNA — Proof of Real Use: on-chain verification, attestations and DNA for wallets and agents on Stellar",
+  "description": "STELLACT — Proof of Real Use: on-chain verification, attestations and DNA for wallets and agents on Stellar",
   "packageManager": "pnpm@12.4.2",
   "engines": {
     "node": ">=22"
@@ -19,27 +19,31 @@
     "attest:bootstrap": "tsx scripts/attest-bootstrap.ts",
     "setup:asset": "tsx scripts/setup-test-asset.ts",
     "vault:smoke": "tsx scripts/vault-smoke.ts",
-    "setup:sybil": "tsx scripts/setup-sybil-cluster.ts"
+    "setup:sybil": "tsx scripts/setup-sybil-cluster.ts",
+    "smart:smoke": "tsx scripts/smart-account-smoke.ts",
+    "dna:smoke": "tsx scripts/dna-smoke.ts",
+    "web:env": "tsx scripts/sync-web-env.ts",
+    "web:dev": "pnpm --filter @stellact/web dev",
+    "web:e2e": "tsx scripts/web-e2e.ts"
   },
   "dependencies": {
     "@attestprotocol/stellar-sdk": "^2.0.2",
     "@noble/curves": "^2.4.0",
     "@noble/hashes": "^2.4.0",
+    "@stellact/dna": "workspace:*",
+    "@stellact/stellar": "workspace:*",
     "@stellar/stellar-sdk": "^16.3.0",
     "attest-protocol": "workspace:*",
     "dotenv": "^16.4.5",
     "e8004-identity": "workspace:*",
     "e8004-reputation": "workspace:*",
+    "smart-account-kit": "^0.8.0",
     "vault": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "playwright-core": "1.63.0",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ]
   }
 }

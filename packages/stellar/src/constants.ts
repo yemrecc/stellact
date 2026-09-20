@@ -1,4 +1,4 @@
-/** Doğrulama tarihi: 19-20 Eylül 2026. Kaynaklar: Stellar_DNA_Build_Plan.md §16 */
+/** Doğrulama tarihi: 19-20 Eylül 2026. Kaynaklar: STELLACT_Build_Plan.md §16 */
 
 export const USDC = {
   testnet: {
