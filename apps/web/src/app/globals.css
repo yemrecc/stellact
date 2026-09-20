@@ -1,12 +1,13 @@
-/* STELLACT — bespoke ekran token'ları. Kabuk (buton, form, tablo) SDS'ten gelir; bunlar DNA kartı,
-   karar şeridi ve soy ağacı için. Renkler brief §3 (doğrulanmış). */
+/* STELLACT — ekran dili. Kaynak: Stellact_Design (Claude Design), Components ekranı spec.
+   Kabuk SDS'e yakın durur; veri her yerde monospace; renk YALNIZ karar için (geçti/reddedildi).
+   Palet brief §3'te doğrulanmış değerlerle aynı — tasarım da onu korumuş. */
 :root {
   --dna-ground: #f3f5f8;
   --dna-surface: #ffffff;
-  --dna-surface-2: #f7f8fa;
+  --dna-surface-2: #eef1f5;
   --dna-ink: #0f1216;
   --dna-ink-2: #4b5563;
-  --dna-ink-3: #8a919b;
+  --dna-ink-3: #8a919b;        /* faint */
   --dna-hair: #dfe3e9;
   --dna-hair-2: #c9cfd8;
   --dna-accent: #2a78d6;
@@ -15,14 +16,15 @@
   --dna-good-wash: rgba(12, 163, 12, 0.10);
   --dna-bad: #d03b3b;
   --dna-bad-wash: rgba(208, 59, 59, 0.10);
-  /* next/font değişkenleri (layout.tsx) — fallback'ler font yüklenmezse devreye girer */
-  --dna-display: var(--font-bricolage), "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
-  --dna-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --dna-sans: var(--font-inter), Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Tipografi tasarımın seçimi: başlık Familjen Grotesk, veri Fragment Mono, gövde sistem yazıtipi.
+     next/font değişkenleri layout.tsx'te; fallback'ler font yüklenmezse devreye girer. */
+  --dna-display: var(--font-familjen), "Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --dna-mono: var(--font-fragment), "Fragment Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --dna-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --dna-ground: #0e1116; --dna-surface: #171b22; --dna-surface-2: #1d222b;
+    --dna-ground: #0e1116; --dna-surface: #171b22; --dna-surface-2: #1e242d;
     --dna-ink: #f2f4f7; --dna-ink-2: #b8bfc9; --dna-ink-3: #8a919b;
     --dna-hair: #262c36; --dna-hair-2: #343b47;
     --dna-accent: #3987e5; --dna-accent-wash: rgba(57, 135, 229, 0.16);
@@ -31,7 +33,7 @@
   }
 }
 :root[data-theme="dark"] {
-  --dna-ground: #0e1116; --dna-surface: #171b22; --dna-surface-2: #1d222b;
+  --dna-ground: #0e1116; --dna-surface: #171b22; --dna-surface-2: #1e242d;
   --dna-ink: #f2f4f7; --dna-ink-2: #b8bfc9; --dna-ink-3: #8a919b;
   --dna-hair: #262c36; --dna-hair-2: #343b47;
   --dna-accent: #3987e5; --dna-accent-wash: rgba(57, 135, 229, 0.16);
@@ -39,88 +41,167 @@
   --dna-bad: #e05252; --dna-bad-wash: rgba(224, 82, 82, 0.16);
 }
 
-/* :root (0,1,0) SDS'in .sds-theme-light/.sds-theme-dark zeminiyle aynı özgüllükte;
-   globals.css styles.min.css'ten SONRA yüklendiği için bizimki kazanır. */
 :root, body { margin: 0; min-height: 100%; background: var(--dna-ground); color: var(--dna-ink); }
-/* SDS bileşenleri (.Button, .Input …) kendi font-family'sini dayatmadığı yerde bunu miras alır */
 body, button, input, select, textarea { font-family: var(--dna-sans); }
-body { font-size: 14px; line-height: 1.45; }
+body { font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; text-wrap: pretty; }
 a { color: inherit; }
 *:focus-visible { outline: 2px solid var(--dna-accent); outline-offset: 2px; }
 
-.dna-nav { display: flex; align-items: center; gap: 24px; padding: 12px 24px; border-bottom: 1px solid var(--dna-hair); background: var(--dna-surface); }
-/* Marka: versal yazım biraz harf aralığı ister; slogan yanında sessiz durur. */
-.dna-nav__brand { font-family: var(--dna-display); font-weight: 700; font-size: 18px; letter-spacing: 0.02em; text-decoration: none; display: inline-flex; align-items: baseline; gap: 10px; }
-.dna-nav__tag { font-family: var(--dna-sans); font-weight: 400; font-size: 11px; letter-spacing: 0.04em; color: var(--dna-ink-3); white-space: nowrap; }
-@media (max-width: 720px) { .dna-nav__tag { display: none; } }
-.dna-nav__links { display: flex; gap: 18px; font-size: 14px; flex: 1; }
-.dna-nav__links a { text-decoration: none; color: var(--dna-ink-2); }
+/* ---------- kabuk ---------- */
+.dna-nav { background: var(--dna-surface); border-bottom: 1px solid var(--dna-hair); }
+.dna-nav__in { max-width: 1200px; margin: 0 auto; padding: 0 clamp(16px, 2.2vw, 32px); height: 56px; display: flex; align-items: center; gap: 28px; }
+.dna-nav__brand { font: 600 17px var(--dna-display); letter-spacing: -.01em; text-decoration: none; white-space: nowrap; }
+.dna-nav__links { display: flex; gap: 24px; height: 56px; align-items: stretch; font: 500 14px var(--dna-sans); }
+.dna-nav__links a { display: flex; align-items: center; color: var(--dna-ink-2); text-decoration: none; border-bottom: 2px solid transparent; }
 .dna-nav__links a:hover { color: var(--dna-ink); }
-.dna-main { max-width: 1180px; margin: 0 auto; padding: 24px 16px 64px; }
+.dna-nav__links a[aria-current="page"] { color: var(--dna-ink); font-weight: 600; border-bottom-color: var(--dna-ink); }
+.dna-nav__end { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+@media (max-width: 720px) { .dna-nav__links { display: none; } }
+.dna-main { max-width: 1200px; margin: 0 auto; padding: clamp(24px, 3.5vw, 44px) clamp(16px, 2.2vw, 32px) 72px; }
 
-.net { display: inline-flex; align-items: center; gap: 6px; font-family: var(--dna-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--dna-ink-2); border: 1px solid var(--dna-hair-2); border-radius: 2px; padding: 4px 8px; }
-.net i { width: 6px; height: 6px; border-radius: 50%; background: var(--dna-good); display: inline-block; }
+/* ---------- tipografi ---------- */
+.h1 { margin: 0; font: 600 clamp(30px, 3.6vw, 52px)/1.05 var(--dna-display); letter-spacing: -.03em; text-wrap: balance; }
+.h2 { margin: 0; font: 600 clamp(20px, 1.9vw, 26px) var(--dna-display); letter-spacing: -.015em; }
+.lede { margin: 0; font-size: clamp(16px, 1.2vw, 19px); color: var(--dna-ink-2); max-width: 56ch; }
+.mono { font-family: var(--dna-mono); }
+.eyebrow { font: 600 12px/1 var(--dna-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--dna-ink-3); }
+.stamp { font: 12px var(--dna-mono); color: var(--dna-ink-2); }
+.note { font-size: 13px; color: var(--dna-ink-2); }
+.err { color: var(--dna-bad); font-size: 14px; }
 
-.h1 { font-family: var(--dna-display); font-weight: 700; font-size: clamp(26px, 4vw, 36px); letter-spacing: -.02em; line-height: 1.05; margin: 0 0 8px; text-wrap: balance; }
-.lede { font-family: var(--dna-display); font-weight: 500; color: var(--dna-ink-2); font-size: 15px; max-width: 58ch; margin: 0 0 20px; text-wrap: balance; }
-.mono { font-family: var(--dna-mono); font-size: 12px; color: var(--dna-ink-2); }
-.addr { font-family: var(--dna-mono); font-size: 12px; word-break: break-all; }
-.addr a { text-decoration: none; border-bottom: 1px solid var(--dna-hair-2); }
-.stamp { font-size: 11px; color: var(--dna-ink-3); }
-.err { color: var(--dna-bad); font-size: 13px; }
+/* ---------- adres · tutar · kod ---------- */
+/* Kısa biçim odaklanınca tam adresi açar: fare ve klavye aynı davranır (spec §5.7). */
+.addr { font: 15px var(--dna-mono); color: var(--dna-ink); text-decoration: underline; text-decoration-color: var(--dna-hair); text-underline-offset: 3px; word-break: break-all; }
+.addr:hover, .addr:focus-visible { text-decoration-color: var(--dna-ink); }
+.addr--sm { font-size: 13px; }
+.amount { font-family: var(--dna-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.code { display: inline-flex; align-items: center; height: 26px; padding: 0 8px; border-radius: 4px; background: var(--dna-surface-2); font: 13px var(--dna-mono); color: var(--dna-ink); }
 
-.card { background: var(--dna-surface); border: 1px solid var(--dna-hair); border-radius: 6px; overflow: hidden; }
-.card__head { padding: 14px 16px 12px; border-bottom: 1px solid var(--dna-hair); display: grid; gap: 8px; }
-.card__who { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.card__role { font-family: var(--dna-display); font-weight: 600; font-size: 17px; letter-spacing: -.01em; }
+/* ---------- rozetler ---------- */
+.badge { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 4px; border: 1px solid var(--dna-hair); font: 600 13px var(--dna-sans); color: var(--dna-ink-2); white-space: nowrap; }
+.badge--taken { background: var(--dna-surface-2); color: var(--dna-ink); }
+.badge--verifying { border-color: var(--dna-ink); background: var(--dna-ink); color: var(--dna-surface); }
+.badge--passed { border-color: var(--dna-good); color: var(--dna-good); }
+.badge--rejected { border-color: var(--dna-bad); color: var(--dna-bad); }
+.badge--rewarded { border-color: var(--dna-ink); color: var(--dna-ink); }
+.badge--cancelled { border-style: dashed; color: var(--dna-ink-3); text-decoration: line-through; }
+.badge--solid { border-color: var(--dna-ink); background: var(--dna-ink); color: var(--dna-surface); }
+.badge i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: inline-block; }
+.klass { display: inline-flex; align-items: center; height: 22px; padding: 0 7px; border-radius: 4px; border: 1px solid var(--dna-ink-2); font: 600 12px var(--dna-sans); color: var(--dna-ink); white-space: nowrap; }
+.net { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border-radius: 999px; border: 1px solid var(--dna-hair); font: 12px var(--dna-mono); color: var(--dna-ink-2); }
+.net--main { border-color: var(--dna-ink-2); color: var(--dna-ink); }
+.net i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; }
+/* İlkler: para değeri yok, durum bildirir — o yüzden nötr, mono, çerçeveli. */
+.pill { display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--dna-ink); font: 13px var(--dna-mono); color: var(--dna-ink); }
+.pill i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: inline-block; }
+.firsts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+/* Veri damgası: ne zaman, nereden. Dolu nokta canlı, boş nokta yeniden okunuyor. */
+.src { display: inline-flex; align-items: center; gap: 6px; font: 12px var(--dna-mono); color: var(--dna-ink-2); }
+.src i { width: 6px; height: 6px; border-radius: 50%; background: var(--dna-ink); display: inline-block; box-sizing: border-box; }
+.src--wait { opacity: .7; }
+.src--wait i { background: transparent; border: 1px solid var(--dna-ink-2); }
+.srcs { display: flex; flex-wrap: wrap; gap: 8px 24px; }
 
+/* ---------- düğmeler ---------- */
+/* Vurgu rengi yalnız sayfanın birincil eylemine ayrılmış (spec: buttons · controls). */
+.btn { display: inline-flex; align-items: center; justify-content: center; height: 48px; padding: 0 20px; border-radius: 6px; border: 1px solid var(--dna-ink); background: transparent; color: var(--dna-ink); font: 600 15px var(--dna-sans); text-decoration: none; cursor: pointer; }
+.btn:hover { background: var(--dna-surface-2); }
+.btn--primary { background: var(--dna-accent); border-color: var(--dna-accent); color: #fff; }
+.btn--primary:hover { background: var(--dna-accent); filter: brightness(1.06); }
+.btn--sm { height: 32px; padding: 0 12px; font-size: 13px; }
+.btn--stack { flex-direction: column; align-items: flex-start; justify-content: center; min-height: 56px; padding: 10px 20px; line-height: 1.25; }
+.btn--stack b { font: 600 16px var(--dna-sans); }
+.btn--stack small { font: 12px var(--dna-mono); opacity: .92; }
+.btn:disabled, .btn[aria-disabled="true"] { border-color: var(--dna-hair); color: var(--dna-ink-3); background: transparent; cursor: default; }
+/* Segment: iki durumlu anahtar (Private/Public, Graph/List). */
+.seg { display: inline-flex; border: 1px solid var(--dna-hair); border-radius: 6px; overflow: hidden; }
+.seg button { height: 32px; padding: 0 14px; border: 0; background: transparent; color: var(--dna-ink-2); font: 600 13px var(--dna-sans); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--dna-ink); color: var(--dna-surface); }
+
+/* ---------- yüzeyler ---------- */
+.card { background: var(--dna-surface); border: 1px solid var(--dna-hair); border-radius: 8px; padding: clamp(18px, 2vw, 30px) clamp(18px, 2.2vw, 32px); }
+.card--flush { padding: 0; overflow: hidden; }
+.card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; padding-bottom: 14px; }
+.panel { background: var(--dna-surface); border: 1px solid var(--dna-hair); border-radius: 8px; padding: clamp(16px, 1.6vw, 22px); }
+.wash { background: var(--dna-surface-2); border-radius: 8px; padding: 18px 20px; }
+
+/* ---------- gen satırı (DNA kartı) ---------- */
 .genes { display: grid; }
-.gene { display: grid; grid-template-columns: 112px 1fr; gap: 4px 14px; padding: 11px 16px; border-bottom: 1px solid var(--dna-hair); }
-.gene:last-child { border-bottom: 0; }
-.gene__g { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--dna-ink-3); padding-top: 3px; }
-.gene__g small { display: block; text-transform: none; letter-spacing: 0; font-size: 11px; margin-top: 2px; }
-.facts { display: grid; gap: 4px; }
-.fact { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.fact__v { font-family: var(--dna-mono); font-size: 13px; color: var(--dna-ink); }
-.fact__v--big { font-family: var(--dna-display); font-size: 22px; font-weight: 600; letter-spacing: -.01em; line-height: 1.1; }
-.fact__k { color: var(--dna-ink-2); font-size: 13px; }
-.fact__k--flag { color: var(--dna-bad); font-weight: 600; }
-.pill { display: inline-flex; align-items: center; gap: 5px; border-radius: 2px; padding: 1px 6px; font-size: 11px; border: 1px solid var(--dna-hair-2); color: var(--dna-ink-2); }
-.pill--good { border-color: transparent; background: var(--dna-good-wash); color: var(--dna-ink); }
-.pill--bad  { border-color: transparent; background: var(--dna-bad-wash); color: var(--dna-ink); }
-.pill--acc  { border-color: transparent; background: var(--dna-accent-wash); color: var(--dna-ink); }
-.pill i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-.pill--good i { background: var(--dna-good); } .pill--bad i { background: var(--dna-bad); } .pill--acc i { background: var(--dna-accent); }
-.firsts { display: flex; flex-wrap: wrap; gap: 6px; }
+.gene { display: grid; grid-template-columns: 220px minmax(0, 1fr) auto; gap: 24px; padding: 18px 0; border-top: 1px solid var(--dna-hair); align-items: start; }
+.gene__g { display: flex; align-items: baseline; gap: 10px; padding-top: 4px; }
+.gene__g small { font: 12px var(--dna-mono); color: var(--dna-ink-2); }
+.gene__body { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.gene__ev { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: flex-end; flex-direction: column; font-size: 13px; padding-top: 4px; }
+.gene__ev a { color: var(--dna-ink-2); text-decoration: underline; text-decoration-color: var(--dna-hair); text-underline-offset: 3px; white-space: nowrap; }
+.gene__ev a:hover { color: var(--dna-ink); text-decoration-color: var(--dna-ink); }
+.facts { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.fact { display: inline-flex; align-items: baseline; gap: 6px; font-size: 14px; }
+.fact__v { font-family: var(--dna-mono); color: var(--dna-ink); }
+.fact__k { color: var(--dna-ink-2); }
+.fact__k--flag { color: var(--dna-bad); }
+/* Öne çıkan olgu: satırın tek büyük sayısı (yaş, pozisyon, settlement). */
+.featured { font: clamp(24px, 2vw, 28px)/1.15 var(--dna-mono); color: var(--dna-ink); letter-spacing: -.01em; word-break: break-word; }
+.empty-fact { display: flex; align-items: baseline; gap: 12px; }
+.empty-fact span:first-child { font: 24px/1 var(--dna-mono); color: var(--dna-ink-3); }
 
-.decision { padding: 14px 16px 16px; border-top: 2px solid var(--dna-hair); background: var(--dna-surface-2); display: grid; gap: 10px; }
+/* alt tablo (x402 ödemeleri) */
+.subtable { border: 1px solid var(--dna-hair); border-radius: 6px; overflow: hidden; margin-top: 4px; }
+.subtable__h, .subtable__r { display: grid; grid-template-columns: 90px minmax(0, 1fr) auto; gap: 8px 14px; }
+.subtable__h { padding: 8px 12px; background: var(--dna-surface-2); font: 600 11px var(--dna-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--dna-ink-3); }
+.subtable__r { padding: 9px 12px; border-top: 1px solid var(--dna-hair); font: 13px var(--dna-mono); color: var(--dna-ink); align-items: baseline; }
+.subtable__r span:first-child { color: var(--dna-ink-2); }
+.subtable__r span:last-child { text-align: right; white-space: nowrap; }
+
+/* ---------- karar ---------- */
+.verdict { display: flex; align-items: center; gap: 14px; }
+.verdict__ico { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 3px solid currentColor; display: inline-flex; align-items: center; justify-content: center; font: 700 22px/1 var(--dna-sans); }
+.verdict__word { font: 600 clamp(30px, 3vw, 40px)/1 var(--dna-display); letter-spacing: -.025em; }
+.verdict--pass { color: var(--dna-good); }
+.verdict--fail { color: var(--dna-bad); }
+.decision { border: 1px solid var(--dna-hair); border-top-width: 2px; border-radius: 0 0 8px 8px; background: var(--dna-surface); }
 .decision--pass { border-top-color: var(--dna-good); }
-.decision--reject { border-top-color: var(--dna-bad); }
-.verdict { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.verdict__word { font-family: var(--dna-display); font-weight: 700; font-size: 22px; letter-spacing: -.01em; }
-.verdict__ico { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; color: #fff; font-size: 13px; font-weight: 700; flex: none; }
-.decision--pass .verdict__ico { background: var(--dna-good); } .decision--reject .verdict__ico { background: var(--dna-bad); }
-.verdict__meta { font-family: var(--dna-mono); font-size: 11px; color: var(--dna-ink-3); margin-left: auto; }
-.reasons { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
-.reasons li { display: grid; grid-template-columns: 18px 1fr; gap: 8px; align-items: start; font-size: 13px; }
-.reasons__mark { font-family: var(--dna-mono); font-size: 12px; color: var(--dna-ink-3); padding-top: 1px; }
-.reasons code { font-family: var(--dna-mono); font-size: 12px; color: var(--dna-ink-2); display: block; margin-top: 2px; }
-.reasons__evi { font-size: 12px; color: var(--dna-ink-3); }
+.decision--fail { border-top-color: var(--dna-bad); }
+.reasons { display: grid; gap: 18px; margin: 0; padding: 0; list-style: none; }
+.reasons li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 12px; align-items: start; }
+.reasons__n { font: 12px var(--dna-mono); color: var(--dna-ink-3); padding-top: 4px; }
+.reasons__t { font: 600 17px/1.35 var(--dna-sans); margin: 0 0 8px; }
+.reasons__ev { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; font-size: 13px; color: var(--dna-ink-2); margin-top: 8px; }
+.reasons__ev a { color: var(--dna-ink-2); text-decoration: underline; text-decoration-color: var(--dna-hair); text-underline-offset: 3px; }
+.reasons__ev a:hover { color: var(--dna-ink); }
 
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
-.stack { display: grid; gap: 12px; }
+/* politika tablosu: kural · yürürlükteki değer · sonuç */
+.rules { width: 100%; border-collapse: collapse; }
+.rules th { text-align: left; font: 600 11px var(--dna-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--dna-ink-3); padding: 0 0 8px; }
+.rules td { border-top: 1px solid var(--dna-hair); padding: 12px 0; vertical-align: baseline; font-size: 14px; }
+.rules td:last-child { text-align: right; font-family: var(--dna-mono); font-size: 13px; white-space: nowrap; }
+.rules__k { font: 12px var(--dna-mono); color: var(--dna-ink-2); display: block; margin-top: 2px; }
+.rules__ok { color: var(--dna-good); }
+.rules__no { color: var(--dna-bad); }
+.rules__off { color: var(--dna-ink-3); }
+
+/* ---------- düzen yardımcıları ---------- */
+.stack { display: grid; gap: 14px; }
+.stack--lg { gap: 22px; }
 .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-.panel { background: var(--dna-surface); border: 1px solid var(--dna-hair); border-radius: 6px; padding: 16px; }
-.eyebrow { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--dna-ink-3); margin-bottom: 4px; }
-.steps { display: grid; gap: 8px; margin: 0; padding-left: 20px; }
-.steps li { color: var(--dna-ink-2); }
-.steps li.now { color: var(--dna-ink); font-weight: 600; }
-.progress { font-family: var(--dna-mono); font-size: 12px; color: var(--dna-ink-2); display: grid; gap: 4px; }
+.split { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: clamp(20px, 3vw, 44px); align-items: start; }
+.cols--even { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
+.hair-top { border-top: 1px solid var(--dna-hair); padding-top: 18px; }
+.steps { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.steps li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 14px; padding: 16px 0; border-top: 1px solid var(--dna-hair); }
+.steps li:first-child { border-top: 0; }
+.steps__n { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--dna-hair-2); display: grid; place-items: center; font: 600 13px var(--dna-sans); color: var(--dna-ink-3); }
+.steps li.done .steps__n { border-color: var(--dna-ink); color: var(--dna-ink); }
+.steps li.now .steps__n { border-color: var(--dna-ink); background: var(--dna-ink); color: var(--dna-surface); }
+.steps__t { font: 600 15px var(--dna-sans); margin-bottom: 4px; }
+.steps li.next .steps__t { color: var(--dna-ink-3); }
+.progress { display: grid; gap: 4px; font: 13px var(--dna-sans); color: var(--dna-ink-2); }
 
 @media (max-width: 860px) {
-  .grid-2 { grid-template-columns: 1fr; }
-  .gene { grid-template-columns: 1fr; gap: 2px; }
-  .gene__g { padding-top: 0; }
-  .dna-nav { padding: 10px 16px; gap: 14px; }
+  .cols { grid-template-columns: 1fr; }
+  .gene { grid-template-columns: 1fr; gap: 8px; }
+  .gene__ev { flex-direction: row; align-items: baseline; padding-top: 0; }
+  .subtable__h, .subtable__r { grid-template-columns: auto minmax(0, 1fr); }
+  .subtable__h span:last-child, .subtable__r span:last-child { grid-column: 2; text-align: left; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

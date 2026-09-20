@@ -1,21 +1,23 @@
 "use client";
-/** Karar ekranı — brief §6.4. Zinciri okur (Horizon + Vault RPC), genome → decide, gerekçeli sonuç + soy listesi. */
+/** Karar ekranı — zinciri canlı okur, politikayı uygular, gerekçeyi kanıtla gösterir. */
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Button } from "@stellar/design-system";
-import { computeGenome, decide, readSiblings, readWalletFacts, type Decision, type Genome, type Policy, type Sibling, type WalletFacts } from "@stellact/dna";
-import type { Task } from "@/lib/tasks";
+import { computeGenome, decide, readSiblings, readWalletFacts, type Decision, type Genome, type Policy, type SettlementFact, type Sibling, type WalletFacts } from "@stellact/dna";
 import { CONFIG, fmtUtc } from "@/lib/config";
 import { readVault } from "@/lib/vault";
 import { NO_AGENT, agentFacts, needsAgentFacts } from "@/lib/agent";
-import { DecisionStrip, GenomeCard, PolicyPanel } from "@/components/dna";
+import { DecisionStrip, GenomeCard, Lineage, PolicyPanel } from "@/components/dna";
+import { Badge, ClassBadge, Src } from "@/components/ui";
+import { CLASS_LABEL, type Task } from "@/lib/tasks";
 
-type Loaded = { genome: Genome; siblings: Sibling[]; decision: Decision; stamp: string };
+type Loaded = { genome: Genome; siblings: Sibling[]; settlements: SettlementFact[]; decision: Decision; stamp: React.ReactNode };
 type Phase = { status: "loading"; step: string } | ({ status: "ready" } & Loaded) | { status: "error"; message: string };
+
+const FIRST_STEP = "Reading the Vault… (Soroban RPC)";
 
 /** Veri yükleme — saf async; setState yok. Adımlar onStep ile bildirilir (react.dev "fetching data" kalıbı). */
 async function loadResult(subject: string, policy: Policy, onStep: (s: string) => void): Promise<Loaded> {
-  onStep("Vault okunuyor… (Soroban RPC)");
+  onStep(FIRST_STEP);
   const vault = await readVault(subject);
   const agent = needsAgentFacts(policy) ? await agentFacts(subject) : NO_AGENT;
   let facts: WalletFacts;
@@ -24,18 +26,22 @@ async function loadResult(subject: string, policy: Policy, onStep: (s: string) =
     facts = { id: subject, network: CONFIG.network, sponsor: null, created_at: null, funder: null, starting_balance: null, last_modified_time: null,
       tx_count: 0, distinct_counterparties: 0, self_payments: 0, trustlines: [], vault: { balance_tusd: vault.balance_tusd, deposited_at: vault.deposited_at }, agent, observed_at: new Date().toISOString() };
   } else {
-    onStep("Horizon okunuyor… köken, trustline, karşı taraflar");
+    onStep("Reading Horizon… origin, trustlines, counterparties");
     facts = await readWalletFacts(subject, CONFIG.network, { balance_tusd: vault.balance_tusd, deposited_at: vault.deposited_at }, agent);
   }
-  onStep(facts.sponsor ? "Sponsor kümesi okunuyor…" : "Karar veriliyor…");
+  onStep(facts.sponsor ? "Reading the sponsor cluster…" : "Deciding…");
   const siblings = await readSiblings(facts.sponsor, CONFIG.network);
   const genome = computeGenome(facts, siblings);
   const decision = decide(genome, policy, subject);
-  return { genome, siblings, decision, stamp: `Horizon + RPC · canlı · ${fmtUtc(new Date().toISOString())}` };
+  const now = new Date().toISOString();
+  return {
+    genome, siblings, decision, settlements: agent.settlements,
+    stamp: <><Src label={`Horizon · live · ${fmtUtc(now)}`} /><Src label={`Vault · RPC · ${fmtUtc(now)}`} /></>,
+  };
 }
 
 export function Result({ task, subject }: { task: Task; subject: string }) {
-  const [phase, setPhase] = useState<Phase>({ status: "loading", step: "Vault okunuyor… (Soroban RPC)" });
+  const [phase, setPhase] = useState<Phase>({ status: "loading", step: FIRST_STEP });
   const [tick, setTick] = useState(0); // "yeniden sorgula" tetikleyicisi
 
   useEffect(() => {
@@ -46,47 +52,87 @@ export function Result({ task, subject }: { task: Task; subject: string }) {
     return () => { alive = false; };
   }, [subject, task.policy, tick]);
 
-  const reload = () => { setPhase({ status: "loading", step: "Vault okunuyor… (Soroban RPC)" }); setTick(t => t + 1); };
+  const reload = () => { setPhase({ status: "loading", step: FIRST_STEP }); setTick(t => t + 1); };
+  const clusterReason = phase.status === "ready" && phase.decision.reasons.some(r => r.code.startsWith("sponsor_cluster_size"));
 
   return (
-    <div className="stack">
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <div>
-          <div className="eyebrow">Karar · {task.project.name}</div>
-          <h1 className="h1" style={{ fontSize: 22 }}>{task.title}</h1>
+    <div className="stack stack--lg">
+      <div className="split">
+        <div className="row" style={{ gap: 12 }}>
+          <span className="eyebrow">{task.project.name}</span>
+          <span style={{ font: "600 15px var(--dna-sans)" }}>{task.title}</span>
+          <span className="stamp">validator <span className="mono">{task.action}</span></span>
+          <ClassBadge klass={task.verifierClass} />
+          <span className="note">{CLASS_LABEL[task.verifierClass]}</span>
         </div>
-        <div className="row"><Button variant="secondary" size="sm" onClick={reload} disabled={phase.status === "loading"}>Zinciri yeniden sorgula</Button><Link href={`/tasks/${task.id}`} className="mono">← görev</Link></div>
+        <Link href={`/tasks/${task.id}`} className="note" style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>← Back to task</Link>
       </div>
 
-      {phase.status === "loading" && <div className="panel progress"><span>{phase.step}</span><span className="stamp">Spinner değil, adım: hangi kaynak okunuyor görünür.</span></div>}
-      {phase.status === "error" && <div className="panel stack" role="alert"><span className="err">Zincire ulaşılamadı: {phase.message}</span><span className="stamp">Horizon/RPC geçici olarak yanıt vermiyor olabilir; yeniden sorgulayın.</span></div>}
+      <div className="split">
+        <h1 className="h1" style={{ fontSize: "clamp(26px,2.6vw,36px)" }}>Decision</h1>
+        <div className="row">
+          {phase.status === "ready" ? <span className="srcs">{phase.stamp}</span> : null}
+          <button className="btn btn--sm" onClick={reload} disabled={phase.status === "loading"}>Query the chain</button>
+        </div>
+      </div>
+
+      {phase.status === "loading" && (
+        <div className="panel progress">
+          <span>{phase.step}</span>
+          <span className="stamp">Not a spinner — the step names the source being read.</span>
+        </div>
+      )}
+      {phase.status === "error" && (
+        <div className="panel stack" role="alert">
+          <span className="err">Horizon unreachable — {phase.message}</span>
+          <span className="stamp">Horizon or the RPC may be briefly unavailable; query again.</span>
+        </div>
+      )}
 
       {phase.status === "ready" && (
-        // Karar sağ sütunun başında: kanıt (sol) ve hüküm (sağ) aynı anda, kaydırmadan görünür.
-        <div className="grid-2">
-          <article className="card">
+        <div className="stack stack--lg">
+          <DecisionStrip d={phase.decision} subject={subject} />
+
+          <div className="cols">
+            {clusterReason && phase.genome.origin.sponsor ? (
+              <Lineage sponsor={phase.genome.origin.sponsor} siblings={phase.siblings} address={subject} />
+            ) : (
+              <div className="panel stack">
+                <span className="h2" style={{ fontSize: 18 }}>What the chain shows</span>
+                <p className="note" style={{ margin: 0 }}>
+                  {phase.decision.pass
+                    ? "The facts on chain cleared every rule in the policy. An attestation is written, a gene is added to the DNA card, and the reward is paid from the pool once the holding period is over."
+                    : "The task action itself may be real; the decision is about the source and the behaviour around it. Every reason carries its code and a link to the evidence."}
+                </p>
+                <Link href={`/dna/${subject}`} className="note" style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>Open the DNA card →</Link>
+              </div>
+            )}
+
+            <div className="stack">
+              <div className="panel"><PolicyPanel policy={task.policy} genome={phase.genome} /></div>
+              <div className="panel stack">
+                <span className="eyebrow">Flag on the DNA card</span>
+                <div className="row" style={{ gap: 8 }}>
+                  <span className="stamp">counterparty · graph</span>
+                  {phase.genome.graph.sponsor_siblings > 10 ? <Badge kind="rejected">{phase.genome.graph.sponsor_siblings} siblings</Badge> : <Badge>clean</Badge>}
+                </div>
+                <p className="note" style={{ margin: 0 }}>
+                  The decision is made in this strip, not on the card; the card carries the fact.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <article className="stack">
             <GenomeCard
               address={subject}
               genome={phase.genome}
               siblings={phase.siblings}
+              settlements={phase.settlements}
               stamp={phase.stamp}
-              role={subject.startsWith("C") ? "Smart account" : phase.genome.graph.sponsor_siblings > 10 ? "Script" : "Kullanıcı"}
-              lineageOpen={phase.decision.reasons.some(r => r.code.startsWith("sponsor_cluster_size"))}
+              role={subject.startsWith("C") ? "Smart account" : phase.genome.agent.x402_settlements > 0 ? "Agent" : phase.genome.graph.sponsor_siblings > 10 ? "Script" : "User"}
             />
           </article>
-          <div className="stack">
-            <article className="card"><DecisionStrip d={phase.decision} subject={subject} /></article>
-            <div className="panel"><PolicyPanel policy={task.policy} /></div>
-            <div className="panel stack" style={{ gap: 6 }}>
-              <div className="eyebrow">Ne oldu</div>
-              <p style={{ margin: 0, fontSize: 13, color: "var(--dna-ink-2)" }}>
-                {phase.decision.pass
-                  ? "Zincirdeki olgular politikanın her kuralını geçti. Tasdik yazılır, DNA kartına gen eklenir; ödül kalıcılık süresi dolunca havuzdan ödenir."
-                  : "Görev yapılmış ama kaynak politikayı geçmiyor. Karar olguya dayanır: her gerekçenin yanında kod ve kanıt bağlantısı var."}
-              </p>
-              <Link href={`/dna/${subject}`} className="mono">DNA kartını aç →</Link>
-            </div>
-          </div>
         </div>
       )}
     </div>

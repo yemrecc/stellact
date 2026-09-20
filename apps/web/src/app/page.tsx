@@ -1,10 +1,18 @@
 "use client";
-/** Giriş — passkey ile cüzdan. Seed phrase yok, XLM yok. Brief §6.1 durumları: idle / prompting / deploying / connected / error. */
+/** Giriş — passkey ile cüzdan. Seed phrase yok, XLM yok. Durumlar: idle / prompting / deploying / connected / error. */
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Button } from "@stellar/design-system";
 import { getKit, restoreWallet, explainError, type WalletState } from "@/lib/kit";
 import { AddressLink } from "@/components/ui";
+
+const STATE_LABEL: Record<string, string> = {
+  restoring: "looking for a wallet",
+  idle: "passkey · 10 s",
+  prompting: "passkey requested",
+  deploying: "writing to chain",
+  connected: "connected",
+  error: "error",
+};
 
 export default function Home() {
   const [state, setState] = useState<WalletState>({ status: "restoring" });
@@ -24,7 +32,7 @@ export default function Home() {
       const w = await p;
       clearTimeout(t);
       if (!w.submitResult?.success) {
-        setState({ status: "error", message: `Cüzdan zincire yazılamadı [${w.submitResult?.error.code}]`, hint: w.submitResult?.error.message });
+        setState({ status: "error", message: `The wallet could not be written to the chain [${w.submitResult?.error.code}]`, hint: w.submitResult?.error.message });
         return;
       }
       setState({ status: "connected", contractId: w.contractId, credentialId: w.credentialId });
@@ -51,25 +59,44 @@ export default function Home() {
   }
 
   return (
-    <div className="stack" style={{ maxWidth: 640 }}>
-      <div>
-        {/* Slogan nav'da duruyor; H1 zaten onun Türkçesi — aynı ekranda tekrarlamıyoruz. */}
-        <h1 className="h1">Stellar&apos;da yaptığın şey, kimliğin.</h1>
+    <div className="cols">
+      <div className="stack stack--lg">
+        <h1 className="h1">The chain says what your wallet actually did.</h1>
         <p className="lede">
-          Görev yap, zincir doğrulasın, DNA&apos;n yazılsın. Kelime ezberlemezsin, gas ödemezsin — cüzdanın cihazının kilidiyle açılır.
+          Projects define tasks, you do them, and the system reads the chain to decide: passed or rejected.
+          Every action that passes is written to the chain as an attestation and onto your DNA card.
         </p>
+        <div className="hair-top stack">
+          <div style={{ display: "grid", gridTemplateColumns: "auto minmax(0,1fr)", gap: "10px 14px", color: "var(--dna-ink-2)" }}>
+            <span className="stamp" style={{ paddingTop: 2 }}>01</span>
+            <span><span style={{ color: "var(--dna-ink)" }}>No gas.</span> The platform covers transaction fees and trustlines open sponsored.</span>
+            <span className="stamp" style={{ paddingTop: 2 }}>02</span>
+            <span><span style={{ color: "var(--dna-ink)" }}>No seed phrase.</span> Your wallet is bound to your device passkey.</span>
+            <span className="stamp" style={{ paddingTop: 2 }}>03</span>
+            <span><span style={{ color: "var(--dna-ink)" }}>No blank slate.</span> If you already have on-chain history, it shows on your DNA card the first time you open it.</span>
+          </div>
+        </div>
+        <div className="stamp">network testnet · wallet is a C-address (Soroban smart wallet) · source is open</div>
       </div>
 
-      <div className="panel stack">
-        {state.status === "restoring" && <div className="progress"><span>Kayıtlı cüzdan aranıyor…</span></div>}
+      <section className="card stack stack--lg">
+        <div className="split">
+          <span className="h2">Start</span>
+          <span className="stamp">{STATE_LABEL[state.status]}</span>
+        </div>
+
+        {state.status === "restoring" && <div className="progress"><span>Looking for a saved wallet…</span></div>}
 
         {(state.status === "idle" || state.status === "error") && (
           <>
-            <div className="row">
-              <Button variant="primary" size="md" onClick={create}>Passkey ile cüzdan oluştur</Button>
-              <Button variant="secondary" size="md" onClick={connect}>Mevcut cüzdanı bağla</Button>
+            <button className="btn btn--primary btn--stack" onClick={create}>
+              <b>Create wallet with passkey</b>
+              <small>Face ID · Touch ID · device lock · ~10 seconds</small>
+            </button>
+            <button className="btn" onClick={connect}>Connect existing wallet</button>
+            <div className="note hair-top">
+              A wallet is created on your device and written to the chain by the platform. We never hold your keys, and you never pay gas.
             </div>
-            <div className="stamp">Face ID / Touch ID / cihaz PIN&apos;i. Ücreti platform öder; XLM gerekmez.</div>
             {state.status === "error" && (
               <div className="stack" role="alert" style={{ gap: 2 }}>
                 <span className="err">{state.message}</span>
@@ -80,40 +107,50 @@ export default function Home() {
         )}
 
         {state.status === "prompting" && (
-          <div className="progress">
-            <span>Cihazınız passkey istiyor…</span>
-            <span className="stamp">{state.action === "create" ? "Onaylayınca cüzdan zincire yazılır (~10 sn)." : "Onaylayınca cüzdanınız bağlanır."}</span>
+          <div className="stack">
+            <div className="panel row" style={{ borderColor: "var(--dna-ink)", gap: 12, flexWrap: "nowrap" }}>
+              <span aria-hidden="true" style={{ width: 34, height: 34, borderRadius: "50%", border: "2px solid var(--dna-ink)", display: "inline-flex", alignItems: "center", justifyContent: "center", font: "700 15px var(--dna-sans)", flex: "none" }}>·</span>
+              <div>
+                <div style={{ font: "600 15px var(--dna-sans)" }}>Waiting for your device</div>
+                <div className="note">
+                  {state.action === "create"
+                    ? "The browser prompt is open — confirm with Face ID or your device lock."
+                    : "Confirm to connect the wallet already on this device."}
+                </div>
+              </div>
+            </div>
+            <div className="note">Nothing is written to the chain at this step.</div>
           </div>
         )}
 
         {state.status === "deploying" && (
-          <div className="progress">
-            <span>Cüzdan zincire yazılıyor…</span>
-            <span className="stamp">Relayer ücreti ödüyor · testnet · genellikle 5-15 sn</span>
+          <div className="stack">
+            <div className="split"><span style={{ font: "600 15px var(--dna-sans)" }}>Writing your wallet to the chain</span><span className="stamp">≈ 10 s</span></div>
+            <ul className="steps">
+              <li className="done"><span className="steps__n" aria-hidden="true">✓</span><div><div className="steps__t">Passkey created</div><div className="note">stored on your device · WebAuthn</div></div></li>
+              <li className="now"><span className="steps__n" aria-hidden="true">2</span><div><div className="steps__t">Deploying the smart wallet contract</div><div className="note">the relayer pays the fee · Soroban RPC</div></div></li>
+              <li className="next"><span className="steps__n" aria-hidden="true">3</span><div><div className="steps__t">DNA card to be prepared</div><div className="note">Horizon</div></div></li>
+            </ul>
           </div>
         )}
 
         {state.status === "connected" && (
           <div className="stack">
-            <div className="eyebrow">Bağlı cüzdan · smart account</div>
+            <div className="eyebrow">Connected wallet · smart account</div>
             <AddressLink address={state.contractId} kind="contract" full />
             <div className="row">
-              <Link href="/tasks" className="Button Button--primary Button--md">Görevlere git</Link>
-              <Link href={`/dna/${state.contractId}`} className="Button Button--secondary Button--md">DNA kartım</Link>
-              <Button variant="tertiary" size="md" onClick={disconnect}>Çıkış</Button>
+              <Link href="/tasks" className="btn btn--primary">Go to tasks</Link>
+              <Link href={`/dna/${state.contractId}`} className="btn">My DNA card</Link>
+              <button className="btn" onClick={disconnect}>Sign out</button>
             </div>
           </div>
         )}
-      </div>
 
-      <div className="stack" style={{ gap: 6 }}>
-        <div className="eyebrow">Nasıl çalışır</div>
-        <ol className="steps">
-          <li>Bir proje görev tanımlar — örneğin &quot;Vault&apos;a 50 TUSD yatır&quot;.</li>
-          <li>Görevi yaparsın; biz zincirin kendi olgularıyla doğrularız: köken, yaş, trustline, pozisyon, sponsor.</li>
-          <li>Geçersen tasdik yazılır ve DNA&apos;na gen eklenir. Geçmezsen gerekçesini ve kanıtını görürsün.</li>
-        </ol>
-      </div>
+        <div className="note hair-top">
+          You can look around without a wallet: <Link href="/tasks" style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>Tasks</Link> ·{" "}
+          <Link href="/index" style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>Index</Link>
+        </div>
+      </section>
     </div>
   );
 }

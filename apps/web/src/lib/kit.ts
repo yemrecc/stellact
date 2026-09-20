@@ -10,7 +10,7 @@ import { CONFIG } from "./config";
 let kitPromise: Promise<SmartAccountKit> | null = null;
 
 export function getKit(): Promise<SmartAccountKit> {
-  if (typeof window === "undefined") throw new Error("getKit yalnız tarayıcıda");
+  if (typeof window === "undefined") throw new Error("getKit runs in the browser only");
   if (!kitPromise) {
     kitPromise = import("smart-account-kit").then(({ SmartAccountKit, IndexedDBStorage }) =>
       new SmartAccountKit({
@@ -46,8 +46,8 @@ export async function restoreWallet(): Promise<WalletState> {
 
 export function explainError(e: unknown): { message: string; hint?: string } {
   const msg = e instanceof Error ? e.message : String(e);
-  if (/NotAllowedError|not allowed|cancel/i.test(msg)) return { message: "Passkey isteği iptal edildi.", hint: "Tekrar deneyin; cihaz kilidinizi (Face ID / Touch ID / PIN) onaylayın." };
-  if (/NotSupportedError|not supported|WebAuthn/i.test(msg)) return { message: "Bu tarayıcı veya cihaz passkey desteklemiyor.", hint: "Güncel Safari, Chrome veya Edge; HTTPS ya da localhost gerekir." };
-  if (/SecurityError|origin|rpId/i.test(msg)) return { message: "Passkey bu adres için oluşturulamıyor.", hint: "Sayfa localhost veya HTTPS üzerinden açılmalı." };
+  if (/NotAllowedError|not allowed|cancel/i.test(msg)) return { message: "The passkey request was cancelled", hint: "Try again and confirm your device lock (Face ID / Touch ID / PIN)." };
+  if (/NotSupportedError|not supported|WebAuthn/i.test(msg)) return { message: "This browser or device does not support passkeys", hint: "A current Safari, Chrome or Edge is required, over HTTPS or localhost." };
+  if (/SecurityError|origin|rpId/i.test(msg)) return { message: "A passkey cannot be created for this page address", hint: "The page must be opened over localhost or HTTPS." };
   return { message: msg };
 }

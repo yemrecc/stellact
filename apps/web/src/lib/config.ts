@@ -61,5 +61,7 @@ export const CONFIG = {
 } as const;
 
 export const short = (a?: string | null) => (a ? `${a.slice(0, 6)}…${a.slice(-6)}` : "—");
-export const fmtTusd = (stroops: bigint | number) => (Number(stroops) / 1e7).toLocaleString("tr-TR", { maximumFractionDigits: 7 });
+/** Tutar: 7 ondalık sabit, binlik ayıracı ince boşluk (tasarım §5.7) — 1 250.0000000 */
+export const fmtTusd = (stroops: bigint | number) =>
+  (Number(stroops) / 1e7).toLocaleString("en-US", { minimumFractionDigits: 7, maximumFractionDigits: 7 }).replace(/,/g, " ");
 export const fmtUtc = (iso?: string | null) => (iso ? new Date(iso).toISOString().replace("T", " ").slice(0, 16) + " UTC" : "—");

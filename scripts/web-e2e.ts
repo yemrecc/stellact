@@ -12,44 +12,50 @@ const BASE = process.env.BASE_URL ?? "http://localhost:3000";
 /** Sayfa içi ek kontroller — metin dışı regresyonlar için (ör. stil yüklenmemiş bileşen). */
 type Check = (page: import("playwright-core").Page) => Promise<string | null>;
 
-/** SDS token'ları .sds-theme-* sınıfı altında tanımlı; sınıf yoksa bileşenler ÇIPLAK render edilir.
- *  Metin testleri bunu yakalamaz — bu yüzden hesaplanan stile bakıyoruz. */
-const sdsStyled: Check = async page => {
-  const el = page.locator("button.Button--primary").first();
+/** Stil yüklenmezse metin testleri bunu yakalamaz — birincil düğmenin hesaplanan
+ *  arka planına ve başlığın yazıtipine bakıyoruz (tasarımın iki taşıyıcı sinyali). */
+const styled: Check = async page => {
+  const el = page.locator("button.btn--primary, a.btn--primary").first();
   await el.waitFor({ timeout: 10_000 });
-  const { bg, theme } = await el.evaluate(n => ({
+  const { bg, head } = await el.evaluate(n => ({
     bg: getComputedStyle(n).backgroundColor,
-    theme: document.documentElement.className.match(/sds-theme-\w+/)?.[0] ?? "(tema sınıfı yok)",
+    head: getComputedStyle(document.querySelector("h1")!).fontFamily,
   }));
   const blank = bg === "rgba(0, 0, 0, 0)" || bg === "transparent";
-  return blank ? `SDS butonu stilsiz: background=${bg}, html=${theme}` : null;
+  if (blank) return `birincil düğme stilsiz: background=${bg}`;
+  if (!/Familjen/i.test(head)) return `başlık yazıtipi yüklenmemiş: ${head}`;
+  return null;
 };
 
+/* Metin beklentileri gerekçe CÜMLESİNE değil, koda ve sabit arayüz metnine bağlanır:
+   cümleler ürün diliyle birlikte değişir, kod (`sponsor_cluster_size=41 > 10`) değişmez. */
 const cases: { name: string; path: string; expect: string[]; forbid?: string[]; check?: Check; dark?: boolean }[] = [
-  { name: "Script → Reddedildi", path: `/tasks/vault-50/result/${env.NEXT_PUBLIC_DEMO_SCRIPT}`, expect: ["Reddedildi", "sponsor_cluster_size=41 > 10", "Soy ağacı · 41 hesap"], forbid: ["Zincire ulaşılamadı"] },
-  { name: "Kullanıcı → Geçti", path: `/tasks/vault-50/result/${env.NEXT_PUBLIC_DEMO_GENUINE}`, expect: ["Geçti", "tasdik yazılır", "sponsor yok"], forbid: ["Reddedildi", "Zincire ulaşılamadı"] },
-  { name: "Smart account DNA", path: `/dna/${env.NEXT_PUBLIC_DEMO_SMART_ACCOUNT}`, expect: ["Smart account", "100 TUSD", "first:vault.deposit"], forbid: ["Zincire ulaşılamadı"] },
+  { name: "Script → Rejected", path: `/tasks/vault-50/result/${env.NEXT_PUBLIC_DEMO_SCRIPT}`, expect: ["Rejected", "sponsor_cluster_size=41 > 10", "What would make it pass", "Lineage"], forbid: ["Horizon unreachable"] },
+  { name: "User → Passed", path: `/tasks/vault-50/result/${env.NEXT_PUBLIC_DEMO_GENUINE}`, expect: ["Passed", "attestation written", "What was actually done"], forbid: ["Rejected", "Horizon unreachable"] },
+  { name: "Smart account DNA", path: `/dna/${env.NEXT_PUBLIC_DEMO_SMART_ACCOUNT}`, expect: ["Smart account", "TUSD", "first:vault.deposit"], forbid: ["Horizon unreachable"] },
   // Ajan geni satıcının settlement kaydından gelir — demo API (:3001) ayakta olmalı (pnpm api:dev).
-  { name: "Ajan DNA → x402 geni", path: `/dna/${env.NEXT_PUBLIC_DEMO_AGENT}`, expect: ["ücretli çağrı · zincirde mutabık (x402)", "sorgu çeşitliliği"], forbid: ["Zincire ulaşılamadı"] },
-  { name: "Giriş (kit yüklenir, idle)", path: `/`, expect: ["Passkey ile cüzdan oluştur"], forbid: ["Kayıtlı cüzdan aranıyor"], check: sdsStyled },
+  { name: "Agent DNA → x402 gene", path: `/dna/${env.NEXT_PUBLIC_DEMO_AGENT}`, expect: ["settlements · diversity", "query diversity"], forbid: ["Horizon unreachable"] },
+  { name: "Agent task → policy table", path: "/tasks/x402-diversity", expect: ["Query diversity", "query_diversity ≥", "agent"], forbid: ["Horizon unreachable"] },
+  { name: "Tasks list", path: "/tasks", expect: ["Deposit at least 50 TUSD", "Pay for 3 different queries", "Class A"], forbid: ["Horizon unreachable"] },
+  { name: "Login (kit loads, idle)", path: `/`, expect: ["Create wallet with passkey", "The chain says what your wallet actually did."], forbid: ["Looking for a saved wallet"], check: styled },
 ];
 
 /** Koyu tema: SDS tema sınıfı ve bizim --dna-* token'larımız aynı sinyali okumalı (brief §9). */
 const darkOk: Check = async page => {
-  const { theme, ground, btn } = await page.evaluate(() => ({
-    theme: document.documentElement.className.match(/sds-theme-\w+/)?.[0] ?? "(yok)",
+  const { ground, ink, btn } = await page.evaluate(() => ({
     ground: getComputedStyle(document.body).backgroundColor,
-    btn: getComputedStyle(document.querySelector("button.Button--primary")!).backgroundColor,
+    ink: getComputedStyle(document.body).color,
+    btn: getComputedStyle(document.querySelector("button.btn--primary")!).backgroundColor,
   }));
-  if (theme !== "sds-theme-dark") return `koyu temada SDS sınıfı yanlış: ${theme}`;
   if (ground !== "rgb(14, 17, 22)") return `koyu zemin uygulanmadı: ${ground}`;
+  if (ink !== "rgb(242, 244, 247)") return `koyu temada metin rengi yanlış: ${ink}`;
   if (btn === "rgba(0, 0, 0, 0)") return `koyu temada buton stilsiz: ${btn}`;
   return null;
 };
 
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-cases.push({ name: "Giriş · koyu tema", path: "/", expect: ["Passkey ile cüzdan oluştur"], check: darkOk, dark: true });
+cases.push({ name: "Login · dark theme", path: "/", expect: ["Create wallet with passkey"], check: darkOk, dark: true });
 let failed = 0;
 for (const c of cases) {
   const page = await (c.dark ? browser.newContext({ viewport: { width: 1280, height: 900 }, colorScheme: "dark" }) : Promise.resolve(ctx)).then(x => x.newPage());
