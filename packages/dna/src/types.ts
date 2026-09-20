@@ -22,7 +22,12 @@ export interface Sibling { id: string; created: string | null }
 /** Satıcının kaydettiği tek bir x402 mutabakatı. `tx_hash` bunu Horizon'dan doğrulanabilir kılar. */
 export interface SettlementFact { ts: string; endpoint: string; params_hash: string; tx_hash: string; amount: string }
 /** Ajan olguları — cüzdanın Horizon'da görünmeyen, ajan olarak yaptıkları. */
-export interface AgentFacts { identity_8004: string | null; settlements: SettlementFact[] }
+export interface AgentFacts {
+  identity_8004: string | null;
+  settlements: SettlementFact[];
+  /** Canlı satıcıdan mı, gömülü kayıttan mı geldiği. Arayüz ikisini aynı göstermez. */
+  source?: "live" | "snapshot";
+}
 
 /** 7 boyutlu DNA — olgu, skor değil. */
 export interface Genome {

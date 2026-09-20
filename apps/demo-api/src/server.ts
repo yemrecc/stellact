@@ -210,7 +210,8 @@ app.get("/settlements", (req, res) => {
     ? readFileSync(LOG, "utf8").split("\n").filter(Boolean).map(l => JSON.parse(l) as Settlement)
     : [];
   const rows = payer ? all.filter(s => s.payer === payer) : all;
-  res.json({ count: rows.length, settlements: rows });
+  // `source`: yayınlanan demo gömülü bir anlık görüntü servis ediyor; arayüz ikisini ayırsın diye.
+  res.json({ count: rows.length, settlements: rows, source: "live" });
 });
 app.get("/health", (_req, res) => res.json({ ok: true, network: NETWORK, asset: ASSET, payTo: RECIPIENT, facilitator: { mode: MODE, detail: facilitatorLabel } }));
 

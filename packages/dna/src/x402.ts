@@ -15,6 +15,6 @@ export async function readAgentFacts(
 ): Promise<AgentFacts> {
   const r = await fetch(`${sellerUrl.replace(/\/$/, "")}/settlements?payer=${encodeURIComponent(payer)}`);
   if (!r.ok) throw new Error(`Satıcı ${r.status} — ${sellerUrl}/settlements`);
-  const { settlements } = (await r.json()) as { settlements: SettlementFact[] };
-  return { identity_8004, settlements: settlements ?? [] };
+  const { settlements, source } = (await r.json()) as { settlements: SettlementFact[]; source?: "live" | "snapshot" };
+  return { identity_8004, settlements: settlements ?? [], source: source ?? "live" };
 }

@@ -7,7 +7,7 @@ import { agentFacts } from "@/lib/agent";
 import { GenomeCard, Lineage } from "@/components/dna";
 import { AddressLink, Badge, NetBadge, Src } from "@/components/ui";
 
-type Loaded = { genome: Genome; siblings: Sibling[]; settlements: SettlementFact[]; stamp: React.ReactNode };
+type Loaded = { genome: Genome; siblings: Sibling[]; settlements: SettlementFact[]; settlementSource: "live" | "snapshot"; stamp: React.ReactNode };
 type Phase = { status: "loading"; step: string } | ({ status: "ready" } & Loaded) | { status: "error"; message: string };
 
 const FIRST_STEP = "Reading the Vault… (RPC)";
@@ -25,7 +25,7 @@ async function loadDna(address: string, onStep: (s: string) => void): Promise<Lo
   }
   const siblings = await readSiblings(facts.sponsor, CONFIG.network);
   const now = new Date().toISOString();
-  return { genome: computeGenome(facts, siblings), siblings, settlements: agent.settlements, stamp: <Src label={`Horizon + RPC · live · ${fmtUtc(now)}`} /> };
+  return { genome: computeGenome(facts, siblings), siblings, settlements: agent.settlements, settlementSource: agent.source ?? "live", stamp: <Src label={`Horizon + RPC · live · ${fmtUtc(now)}`} /> };
 }
 
 export function DnaView({ address }: { address: string }) {
@@ -80,7 +80,7 @@ export function DnaView({ address }: { address: string }) {
 
       {phase.status === "ready" && (
         <>
-          <GenomeCard address={address} genome={phase.genome} siblings={phase.siblings} settlements={phase.settlements} stamp={phase.stamp} role={role} />
+          <GenomeCard address={address} genome={phase.genome} siblings={phase.siblings} settlements={phase.settlements} settlementSource={phase.settlementSource} stamp={phase.stamp} role={role} />
           {phase.genome.origin.sponsor && phase.siblings.length > 1 ? (
             <Lineage sponsor={phase.genome.origin.sponsor} siblings={phase.siblings} address={address} />
           ) : null}

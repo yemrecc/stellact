@@ -14,8 +14,9 @@ const ctr = (a: string) => `${CONFIG.explorer}/contract/${a}`;
 
 /* ---------------------------------------------------------------- DNA kartı */
 
-export function GenomeCard({ address, genome, siblings, settlements = [], stamp, role }: {
-  address: string; genome: Genome; siblings: Sibling[]; settlements?: SettlementFact[]; stamp: React.ReactNode; role: string;
+export function GenomeCard({ address, genome, siblings, settlements = [], settlementSource = "live", stamp, role }: {
+  address: string; genome: Genome; siblings: Sibling[]; settlements?: SettlementFact[];
+  settlementSource?: "live" | "snapshot"; stamp: React.ReactNode; role: string;
 }) {
   const g = genome;
   const clusterFlag = g.graph.sponsor_siblings > 10;
@@ -103,7 +104,7 @@ export function GenomeCard({ address, genome, siblings, settlements = [], stamp,
               [s.ts.slice(11, 16) + " UTC", s.endpoint, `${(Number(s.amount) / 1e7).toFixed(7)} TUSD`] as [string, string, string]),
           } : undefined}
           subNote={settlements.length
-            ? `Query diversity runs 0–1: distinct endpoints ÷ total queries, over the last ${g.agent.query_diversity_window} paid calls. A script repeating one query scores low and is rejected under the agent policy (≥ 0.5).`
+            ? `${settlementSource === "snapshot" ? "Recorded payments — the seller runs locally, but every tx hash above is on testnet and can be checked in the explorer. " : ""}Query diversity runs 0–1: distinct endpoints ÷ total queries, over the last ${g.agent.query_diversity_window} paid calls. A script repeating one query scores low and is rejected under the agent policy (≥ 0.5).`
             : undefined}
         >
           {g.agent.identity_8004 ? <Fact v={g.agent.identity_8004} k="8004 identity" /> : null}

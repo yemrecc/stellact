@@ -10,7 +10,7 @@ import { DecisionStrip, GenomeCard, Lineage, PolicyPanel } from "@/components/dn
 import { Badge, ClassBadge, Src } from "@/components/ui";
 import { CLASS_LABEL, type Task } from "@/lib/tasks";
 
-type Loaded = { genome: Genome; siblings: Sibling[]; settlements: SettlementFact[]; decision: Decision; stamp: React.ReactNode };
+type Loaded = { genome: Genome; siblings: Sibling[]; settlements: SettlementFact[]; settlementSource: "live" | "snapshot"; decision: Decision; stamp: React.ReactNode };
 type Phase = { status: "loading"; step: string } | ({ status: "ready" } & Loaded) | { status: "error"; message: string };
 
 const FIRST_STEP = "Reading the Vault… (Soroban RPC)";
@@ -35,7 +35,7 @@ async function loadResult(subject: string, policy: Policy, onStep: (s: string) =
   const decision = decide(genome, policy, subject);
   const now = new Date().toISOString();
   return {
-    genome, siblings, decision, settlements: agent.settlements,
+    genome, siblings, decision, settlements: agent.settlements, settlementSource: agent.source ?? "live",
     stamp: <><Src label={`Horizon · live · ${fmtUtc(now)}`} /><Src label={`Vault · RPC · ${fmtUtc(now)}`} /></>,
   };
 }
@@ -129,6 +129,7 @@ export function Result({ task, subject }: { task: Task; subject: string }) {
               genome={phase.genome}
               siblings={phase.siblings}
               settlements={phase.settlements}
+              settlementSource={phase.settlementSource}
               stamp={phase.stamp}
               role={subject.startsWith("C") ? "Smart account" : phase.genome.agent.x402_settlements > 0 ? "Agent" : phase.genome.graph.sponsor_siblings > 10 ? "Script" : "User"}
             />

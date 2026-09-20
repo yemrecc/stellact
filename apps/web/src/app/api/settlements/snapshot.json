@@ -1,0 +1,110 @@
+[
+ {
+  "ts": "2026-09-20T08:29:53.242Z",
+  "payer": "GCAF7I6H6GEIS5KA3MADOBJJPAGT23NYJZ6YLBS3E5GS7RMYNQ5YF37H",
+  "endpoint": "/rates/USDTRY",
+  "params_hash": "d48f71cc199d9558",
+  "tx_hash": "906a036e367c75e4edf2704906459f68f50dcd07196e71d72b79cde0b415c88d",
+  "amount": "10000",
+  "network": "stellar:testnet"
+ },
+ {
+  "ts": "2026-09-20T08:30:02.835Z",
+  "payer": "GCAF7I6H6GEIS5KA3MADOBJJPAGT23NYJZ6YLBS3E5GS7RMYNQ5YF37H",
+  "endpoint": "/signals",
+  "params_hash": "46e8e7adea56d8bb",
+  "tx_hash": "8fec075c0f7081718bff7393fededb8e4c4d40d3f807000a65d1461bfb624c9d",
+  "amount": "20000",
+  "network": "stellar:testnet"
+ },
+ {
+  "ts": "2026-09-20T08:30:13.046Z",
+  "payer": "GCAF7I6H6GEIS5KA3MADOBJJPAGT23NYJZ6YLBS3E5GS7RMYNQ5YF37H",
+  "endpoint": "/history/EURTRY",
+  "params_hash": "215904932779a90a",
+  "tx_hash": "4e56c61111aa031f669518ef940cc8643c04ef0114569897a97a47c6df9232e4",
+  "amount": "30000",
+  "network": "stellar:testnet"
+ },
+ {
+  "ts": "2026-09-20T08:30:22.971Z",
+  "payer": "GDLC5R7VYWG4XFUL4ACNKBXUZLJ6DQHDCBHBR3KTTHIT5EJKFZVTM6LV",
+  "endpoint": "/rates/USDTRY",
+  "params_hash": "d48f71cc199d9558",
+  "tx_hash": "593e49dba993abec6378997da3af340cd619298f341f747c68ecc0ed83d370ed",
+  "amount": "10000",
+  "network": "stellar:testnet"
+ },
+ {
+  "ts": "2026-09-20T08:30:32.795Z",
+  "payer": "GDLC5R7VYWG4XFUL4ACNKBXUZLJ6DQHDCBHBR3KTTHIT5EJKFZVTM6LV",
+  "endpoint": "/rates/USDTRY",
+  "params_hash": "d48f71cc199d9558",
+  "tx_hash": "8b3104a8c7ba96c565b90d754184e9b423971bc75d35017cd458f0b7eea7e0d2",
+  "amount": "10000",
+  "network": "stellar:testnet"
+ },
+ {
+  "ts": "2026-09-20T08:30:43.408Z",
+  "payer": "GDLC5R7VYWG4XFUL4ACNKBXUZLJ6DQHDCBHBR3KTTHIT5EJKFZVTM6LV",
+  "endpoint": "/rates/USDTRY",
+  "params_hash": "d48f71cc199d9558",
+  "tx_hash": "b7c2a932d845e4e05605a62d88ecda39a3805d4b4fcab7d64cc83543729e528f",
+  "amount": "10000",
+  "network": "stellar:testnet"
+ },
+ {
+  "ts": "2026-09-20T08:34:02.904Z",
+  "payer": "GCAF7I6H6GEIS5KA3MADOBJJPAGT23NYJZ6YLBS3E5GS7RMYNQ5YF37H",
+  "endpoint": "/rates/EURTRY",
+  "params_hash": "a2d49088669fe5bf",
+  "tx_hash": "0bf2767c69403e9722b7917f5e72c1cb174fb90fe840118ee6916137feeb2e70",
+  "amount": "10000",
+  "network": "stellar:testnet"
+ },
+ {
+  "ts": "2026-09-20T08:34:13.223Z",
+  "payer": "GCAF7I6H6GEIS5KA3MADOBJJPAGT23NYJZ6YLBS3E5GS7RMYNQ5YF37H",
+  "endpoint": "/signals",
+  "params_hash": "46e8e7adea56d8bb",
+  "tx_hash": "61cea2361e4df0de3f1ce391a20e175081f9d52c2781e432e2cc9aefa5d2aefc",
+  "amount": "20000",
+  "network": "stellar:testnet"
+ },
+ {
+  "ts": "2026-09-20T08:34:23.029Z",
+  "payer": "GCAF7I6H6GEIS5KA3MADOBJJPAGT23NYJZ6YLBS3E5GS7RMYNQ5YF37H",
+  "endpoint": "/history/SEKTRY",
+  "params_hash": "bc6f6d1059990d44",
+  "tx_hash": "973e12eecce754259813f9b794b5a309e7b2ce5481e4c40c384cafb891d9fe78",
+  "amount": "30000",
+  "network": "stellar:testnet"
+ },
+ {
+  "ts": "2026-09-20T08:34:32.394Z",
+  "payer": "GDLC5R7VYWG4XFUL4ACNKBXUZLJ6DQHDCBHBR3KTTHIT5EJKFZVTM6LV",
+  "endpoint": "/rates/USDTRY",
+  "params_hash": "d48f71cc199d9558",
+  "tx_hash": "0fda9f8b684b29a958f8d442a2d83f75edccad41beebb96246385366ab5a60d1",
+  "amount": "10000",
+  "network": "stellar:testnet"
+ },
+ {
+  "ts": "2026-09-20T08:34:42.536Z",
+  "payer": "GDLC5R7VYWG4XFUL4ACNKBXUZLJ6DQHDCBHBR3KTTHIT5EJKFZVTM6LV",
+  "endpoint": "/rates/USDTRY",
+  "params_hash": "d48f71cc199d9558",
+  "tx_hash": "bb4d0f3f2f7d059c45a3872efe0cb3277953090150bcaad613ca6f997ecbf1d0",
+  "amount": "10000",
+  "network": "stellar:testnet"
+ },
+ {
+  "ts": "2026-09-20T08:34:53.122Z",
+  "payer": "GDLC5R7VYWG4XFUL4ACNKBXUZLJ6DQHDCBHBR3KTTHIT5EJKFZVTM6LV",
+  "endpoint": "/rates/USDTRY",
+  "params_hash": "d48f71cc199d9558",
+  "tx_hash": "868b1f97df61e21c79c999f4a0006c80b8159467d7f007bcdcc67cab4b72a72e",
+  "amount": "10000",
+  "network": "stellar:testnet"
+ }
+]
